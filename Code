@@ -1,0 +1,90 @@
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(patchwork)
+
+data = read.csv(FileDirectory//data.csv)
+
+# Change data types
+data$Date <- as.Date(data$Date, format="%m/%d/%Y")
+
+# aggregate CO2 by date
+agg_co2 <- aggregate(data$CO2, by=list(data$Date), FUN=sum)
+
+# aggregate Distance by date
+agg_dist <- aggregate(data$Distance, by=list(data$Date), FUN=sum)
+
+# aggregate Time by Date
+agg_time <- aggregate(data$Time, by=list(data$Date), FUN=sum)
+
+# cumulative sum Time
+agg_time$x <- cumsum(agg_time$x)
+
+# cumulative sum CO2
+agg_co2$x <- cumsum(agg_co2$x)
+
+# cumulative sum Distance
+agg_dist$x <- cumsum(agg_dist$x)
+
+# change column names
+colnames(agg_co2) <- c("Date", "CO2")
+colnames(agg_dist) <- c("Date", "Distance")
+colnames(agg_time) <- c("Date", "Time")
+
+# plot CO2
+ggplot(agg_co2, aes(x=Date, y=CO2)) +
+  geom_line(color = "#0099f9", size = 2) +
+  geom_point(color = "black", size = 2) +
+  labs(
+    title = "Cumulative Increase in CO2 Saved",
+    subtitle = "(in kilograms)",
+    caption = "Source: Strava",
+    x = "Date",
+    y = "CO2 Amount"
+  ) +
+  scale_x_date(date_labels = "%Y-%m-%d", date_breaks = "1 week") +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = .5), 
+    plot.title = element_text(color = "#0099f9", size = 20, face = "bold", hjust = 0.5), # hjust for placement on graph
+    plot.subtitle = element_text(size = 15, face = "bold", hjust = 0.5),
+    plot.caption = element_text(face = "italic", hjust = 0)
+  )
+
+# plot Distance
+ggplot(agg_dist, aes(x=Date, y=Distance)) +
+  geom_line(color = "#0099f9", size = 2) +
+  geom_point(color = "black", size = 2) +
+  labs(
+    title = "Cumulative Increase in Distance",
+    subtitle = "(in Miles)",
+    caption = "Source: Strava",
+    x = "Date",
+    y = "Distance"
+  ) +
+  scale_x_date(date_labels = "%Y-%m-%d", date_breaks = "1 week") +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = .5), 
+    plot.title = element_text(color = "#0099f9", size = 20, face = "bold", hjust = 0.5), # hjust for placement on graph
+    plot.subtitle = element_text(size = 15, face = "bold", hjust = 0.5),
+    plot.caption = element_text(face = "italic", hjust = 0)
+  )
+
+# plot Time
+ggplot(agg_time, aes(x=Date, y=Time)) +
+  geom_line(color = "#0099f9", size = 2) +
+  geom_point(color = "black", size = 2) +
+  labs(
+    title = "Cumulative Increase in Time",
+    subtitle = "(in Minutes)",
+    caption = "Source: Strava",
+    x = "Date",
+    y = "Time"
+  ) +
+  scale_x_date(date_labels = "%Y-%m-%d", date_breaks = "1 week") +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = .5), 
+    plot.title = element_text(color = "#0099f9", size = 20, face = "bold", hjust = 0.5), # hjust for placement on graph
+    plot.subtitle = element_text(size = 15, face = "bold", hjust = 0.5),
+    plot.caption = element_text(face = "italic", hjust = 0)
+  )
